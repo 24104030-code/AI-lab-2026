@@ -1,0 +1,84 @@
+#include <iostream>
+#include <sstream>
+using namespace std;
+
+int n, m;
+int graph[20][20], color[20];
+char colors[10];
+
+bool isSafe(int state, int c)
+{
+    for (int i = 0; i < n; i++)
+    {
+        if (graph[state][i] && color[i] == c)
+            return false;
+    }
+    return true;
+}
+
+bool DFS(int state)
+{
+    if (state == n)
+        return true;
+
+    for (int c = 0; c < m; c++)
+    {
+        if (isSafe(state, c))
+        {
+            color[state] = c;
+
+            if (DFS(state + 1))
+                return true;
+
+            color[state] = -1;
+        }
+    }
+
+    return false;
+}
+
+int main()
+{
+    cout << "Enter the no. of states: ";
+    cin >> n;
+    cin.ignore();
+
+    cout << "Enter the colors: ";
+    string line;
+    getline(cin, line);
+
+    stringstream ss(line);
+    m = 0;
+
+    while (ss >> colors[m])
+        m++;
+
+    for (int i = 0; i < n; i++)
+        color[i] = -1;
+
+    cout << "Enter the connection:\n";
+
+    int a, b;
+    while (cin >> a)
+    {
+        if (a == -1)
+            break;
+
+        cin >> b;
+        graph[a - 1][b - 1] = 1;
+        graph[b - 1][a - 1] = 1;
+    }
+
+    if (DFS(0))
+    {
+        cout << "Output:\n";
+        for (int i = 0; i < n; i++)
+            cout << i + 1 << "-" << colors[color[i]] << endl;
+    }
+    else
+    {
+        cout << "No solution";
+    }
+
+    return 0;
+}
