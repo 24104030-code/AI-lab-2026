@@ -1,0 +1,131 @@
+#include <iostream>
+#include <vector>
+#include <climits>
+using namespace std;
+
+vector<vector<int>> tree;
+vector<int> value;
+vector<bool> leaf;
+
+// Alpha-Beta Pruning Function
+int alphaBeta(int node, int alpha, int beta, bool maximizingPlayer)
+{
+    // If node is a leaf node
+    if (leaf[node])
+    {
+        return value[node];
+    }
+
+    // MAX player
+    if (maximizingPlayer)
+    {
+        int best = INT_MIN;
+
+        for (int child : tree[node])
+        {
+            int result = alphaBeta(child, alpha, beta, false);
+
+            best = max(best, result);
+            alpha = max(alpha, best);
+
+            // Alpha-Beta pruning
+            if (beta <= alpha)
+                break;
+        }
+
+        return best;
+    }
+
+    // MIN player
+    else
+    {
+        int best = INT_MAX;
+
+        for (int child : tree[node])
+        {
+            int result = alphaBeta(child, alpha, beta, true);
+
+            best = min(best, result);
+            beta = min(beta, best);
+
+            // Alpha-Beta pruning
+            if (beta <= alpha)
+                break;
+        }
+
+        return best;
+    }
+}
+
+int main()
+{
+    int n;
+
+    cout << "Enter the number of nodes: ";
+    cin >> n;
+
+    tree.resize(n + 1);
+    value.resize(n + 1);
+    leaf.assign(n + 1, true);
+
+    cout << "Enter the connections (-1 for end):\n";
+
+    while (true)
+    {
+        int parent;
+        cin >> parent;
+
+        if (parent == -1)
+            break;
+
+        int child;
+        cin >> child;
+
+        tree[parent].push_back(child);
+        leaf[parent] = false;
+    }
+
+    cout << "Enter utility values for leaf nodes:\n";
+
+    for (int i = 1; i <= n; i++)
+    {
+        if (leaf[i])
+        {
+            cout << "Node " << i << ": ";
+            cin >> value[i];
+        }
+    }
+
+    // Find the best move for MAX at root node 1
+    int bestValue = INT_MIN;
+    int bestMove = -1;
+
+    int alpha = INT_MIN;
+    int beta = INT_MAX;
+
+    for (int child : tree[1])
+    {
+        int currentValue =
+            alphaBeta(child, alpha, beta, false);
+
+        if (currentValue > bestValue)
+        {
+            bestValue = currentValue;
+            bestMove = child;
+        }
+
+        alpha = max(alpha, bestValue);
+
+        // Alpha-Beta pruning
+        if (beta <= alpha)
+            break;
+    }
+
+    cout << "\n";
+    cout << "Best Move for MAX: Node 1 -> Node "
+         << bestMove << endl;
+
+    cout << "MAX value: " << bestValue << endl;
+
+    return 0;
+}
